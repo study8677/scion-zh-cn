@@ -78,7 +78,7 @@ that do not (e.g. generic) will return an error — use 'stop' instead.`,
 
 		agentName := api.Slugify(args[0])
 
-		hubCtx, err := CheckHubAvailabilityForAgent(projectPath, agentName, false)
+		hubCtx, err := CheckHubAvailabilityForAgent(projectPath, agentName, true)
 		if err != nil {
 			return err
 		}

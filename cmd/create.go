@@ -60,7 +60,7 @@ arguments are provided, an empty prompt.md is created for later editing.`,
 		// Check if Hub should be used, excluding the target agent from sync requirements.
 		// This allows creating an agent even if it already exists on Hub (recreate scenario)
 		// or if other agents are out of sync.
-		hubCtx, err := CheckHubAvailabilityForAgent(projectPath, agentName, false)
+		hubCtx, err := CheckHubAvailabilityForAgent(projectPath, agentName, true)
 		if err != nil {
 			return err
 		}

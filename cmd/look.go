@@ -64,7 +64,7 @@ var lookCmd = &cobra.Command{
 		execCmd := buildLookCmd(lookPlain, lookFull, lookNumLines)
 
 		// Check if Hub is enabled
-		hubCtx, err := CheckHubAvailabilityForAgent(projectPath, agentName, false)
+		hubCtx, err := CheckHubAvailabilityForAgent(projectPath, agentName, true)
 		if err != nil {
 			return err
 		}

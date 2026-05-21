@@ -69,7 +69,7 @@ var deleteCmd = &cobra.Command{
 		if !deleteStopped {
 			excludedAgents = args
 		}
-		hubCtx, err := CheckHubAvailabilityForAgents(projectPath, excludedAgents, false)
+		hubCtx, err := CheckHubAvailabilityForAgents(projectPath, excludedAgents, true)
 		if err != nil {
 			return err
 		}

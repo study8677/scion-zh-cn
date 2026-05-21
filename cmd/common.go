@@ -389,7 +389,7 @@ func RunAgent(cmd *cobra.Command, args []string, resume bool) error {
 
 	// This allows starting/resuming an agent even if it exists on Hub but not locally
 	// (will be created via Hub) or if other agents are out of sync.
-	hubCtx, err := CheckHubAvailabilityForAgent(projectPath, agentName, false)
+	hubCtx, err := CheckHubAvailabilityForAgent(projectPath, agentName, true)
 	if err != nil {
 		return err
 	}

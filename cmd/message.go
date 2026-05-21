@@ -194,7 +194,7 @@ Examples:
 			hubCtx, err = CheckHubAvailability(projectPath)
 		} else {
 			// Single agent: exclude target from sync requirements
-			hubCtx, err = CheckHubAvailabilityForAgent(projectPath, agentName, false)
+			hubCtx, err = CheckHubAvailabilityForAgent(projectPath, agentName, true)
 		}
 		if err != nil {
 			return err

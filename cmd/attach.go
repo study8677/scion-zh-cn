@@ -41,7 +41,7 @@ If the agent was started with tmux support, this will attach to the tmux session
 		agentName := api.Slugify(args[0])
 
 		// Check if Hub is enabled
-		hubCtx, err := CheckHubAvailabilityForAgent(projectPath, agentName, false)
+		hubCtx, err := CheckHubAvailabilityForAgent(projectPath, agentName, true)
 		if err != nil {
 			return err
 		}
