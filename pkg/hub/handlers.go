@@ -9126,6 +9126,36 @@ func (s *Server) populateAgentConfig(ctx context.Context, agent *store.Agent, pr
 		}
 	}
 
+	// Populate harness config ID and hash for broker hydration.
+	// Mirrors the template ID/hash stamping above: resolve the harness config
+	// by slug (project scope first, then global) and stamp its ID and content
+	// hash so the broker can fetch it from Hub storage.
+	hcName := agent.AppliedConfig.HarnessConfig
+	if hcName == "" && resolvedTemplate != nil {
+		hcName = s.getHarnessConfigFromTemplate(resolvedTemplate, "")
+	}
+	if hcName != "" && agent.AppliedConfig.HarnessConfigID == "" {
+		var hc *store.HarnessConfig
+		if project != nil {
+			var err error
+			hc, err = s.store.GetHarnessConfigBySlug(ctx, hcName, store.HarnessConfigScopeProject, project.ID)
+			if err != nil && !errors.Is(err, store.ErrNotFound) {
+				s.agentLifecycleLog.Warn("failed to get project harness config by slug", "slug", hcName, "project_id", project.ID, "error", err)
+			}
+		}
+		if hc == nil {
+			var err error
+			hc, err = s.store.GetHarnessConfigBySlug(ctx, hcName, store.HarnessConfigScopeGlobal, "")
+			if err != nil && !errors.Is(err, store.ErrNotFound) {
+				s.agentLifecycleLog.Warn("failed to get global harness config by slug", "slug", hcName, "error", err)
+			}
+		}
+		if hc != nil {
+			agent.AppliedConfig.HarnessConfigID = hc.ID
+			agent.AppliedConfig.HarnessConfigHash = hc.ContentHash
+		}
+	}
+
 	// Merge hub-level telemetry config as lowest-priority default.
 	// Only applies when no per-agent or template telemetry config is set.
 	s.mu.RLock()
