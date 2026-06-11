@@ -34,7 +34,7 @@ Under the **Bot** tab, scroll to **Privileged Gateway Intents** and enable:
 Go to the **OAuth2** tab, then **URL Generator**:
 
 1. Select scopes: `bot` and `applications.commands`
-2. Select the bot permissions listed below (or use the permissions integer `277562386496`)
+2. Select the bot permissions listed below (or use the permissions integer `329101954112`)
 3. Copy the generated URL and open it to invite the bot
 
 #### Required Bot Permissions
@@ -118,31 +118,39 @@ The hub will discover and launch `scion-plugin-discord` as a managed subprocess.
 
 If you are using an AI coding assistant or deployment agent (like Antigravity) to set up and configure this plugin on your Scion instance, you can guide the agent with the following instructions:
 
-### 1. Preparation & Credentials
-Provide the agent with your Discord Bot credentials. Since these are sensitive secrets, you should either:
-- Export them as environment variables on your deployment host:
-  ```bash
-  export DISCORD_BOT_TOKEN="your-bot-token"
-  export DISCORD_APP_ID="your-application-id"
-  export DISCORD_PUBLIC_KEY="your-public-key"
-  ```
-- Or point the agent to a temporary local environment file or secure path where they are stored.
+### 1. Interactive Information Gathering
+An agent should proactively ask the user for:
+- **Discord Bot Token:** (e.g. `MTUxNDcwOD...`)
+- **Discord Application ID:** (e.g. `1514708...`)
+- **Discord Public Key (Optional):**
 
-### 2. Instructing the Agent
-You can copy and paste the following prompt to have the agent execute the installation:
+Upon receiving the **Application ID**, the agent can automatically construct and output the Discord Server Invitation URL using the required permissions integer `329101954112` (which covers all mandatory permissions, including `Manage Webhooks`):
+```text
+https://discord.com/api/oauth2/authorize?client_id=<APPLICATION_ID>&permissions=329101954112&scope=bot%20applications.commands
+```
+
+### 2. Remote Configuration via gcloud ssh
+The agent can automatically configure your remote GCE server:
+1. **Identify GCE Instance:** Determine the running instance name, zone, and project ID.
+2. **Build and Install Plugin:** Compile the binary locally or directly on the remote VM, and install to `/usr/local/bin/scion-plugin-discord`.
+3. **Inject Settings:** Append or modify the YAML configuration inside the remote settings file (located at `/home/scion/.scion/settings.yaml`).
+4. **Service Restart & Verification:** Safely restart the service and stream the logs.
+
+### 3. Agent Prompts
+You can copy and paste the following prompt to have an agent execute this installation:
 
 > **Agent Prompt:**
-> Please build and configure the Discord plugin for the Scion hub on our active GCE instance.
+> Please configure the Discord plugin on our active Scion Hub instance.
 > 
-> 1. **Build & Install:** Compile the plugin located in `extras/scion-discord` and install the binary `scion-plugin-discord` to `/usr/local/bin/`.
-> 2. **Configure Hub Settings:** Read the existing `/home/scion/.scion/settings.yaml` (or the instance's active settings path) and update it to:
->    - Add `- discord` to `server.message_broker.types` (enable message_broker if not already true).
->    - Create the `plugins.broker.discord` block with `bot_token`, `application_id`, and `public_key` set from the environment variables (`DISCORD_BOT_TOKEN`, `DISCORD_APP_ID`, `DISCORD_PUBLIC_KEY`).
->    - Set `db_path` to `/home/scion/.scion/discord.db` (or ensure the target directory exists and has write permissions for the `scion` user).
-> 3. **Restart Service:** Restart the `scion-hub` systemd service (`sudo systemctl restart scion-hub`).
-> 4. **Verify Deployment:** Stream or grep the `scion-hub` systemd logs (`journalctl -u scion-hub -n 50`) to verify that the message `Discord broker configured` or similar startup log is present and that there are no connection errors.
+> 1. Ask me for my Discord Bot Token and Application ID.
+> 2. Once I provide the Application ID, generate and output my Discord bot server invite link with permissions set to `329101954112`.
+> 3. SSH into the active GCE VM and configure the `/home/scion/.scion/settings.yaml` file:
+>    - Ensure `- discord` is enabled under `server.message_broker.types`.
+>    - Add the `plugins.broker.discord` block with the provided token and app-id.
+>    - Set `db_path` to `/home/scion/.scion/discord.db`.
+> 4. Run `sudo systemctl restart scion-hub` and check the logs via `journalctl` to verify that the message `Discord broker configured` is present.
 
-### 3. Verification Checklist (for the Agent)
+### 4. Verification Checklist (for the Agent)
 The agent should verify the following to confirm a successful installation:
 - [ ] `which scion-plugin-discord` returns `/usr/local/bin/scion-plugin-discord`.
 - [ ] The SQLite database directory for `db_path` exists and is writable by the `scion` user.
