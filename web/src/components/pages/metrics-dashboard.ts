@@ -80,6 +80,7 @@ export class ScionPageMetrics extends LitElement {
   @state() private tokens: TokensData | null = null;
 
   private charts: Map<string, Chart> = new Map();
+  private chartTypes: Map<string, 'bar' | 'line'> = new Map();
 
   static override styles = css`
     :host {
@@ -255,6 +256,7 @@ export class ScionPageMetrics extends LitElement {
       chart.destroy();
     }
     this.charts.clear();
+    this.chartTypes.clear();
   }
 
   private async loadView(view: string): Promise<void> {
@@ -439,7 +441,7 @@ export class ScionPageMetrics extends LitElement {
 
       const existing = this.charts.get(canvasId);
       if (existing) {
-        if (existing.config.type === type) {
+        if (this.chartTypes.get(canvasId) === type) {
           existing.data.labels = labels;
           existing.data.datasets = datasets;
           existing.update();
@@ -474,6 +476,7 @@ export class ScionPageMetrics extends LitElement {
         },
       });
       this.charts.set(canvasId, chart);
+      this.chartTypes.set(canvasId, type);
     });
   }
 
@@ -556,8 +559,6 @@ export class ScionPageMetrics extends LitElement {
     if (this.loading) return html`<sl-spinner></sl-spinner>`;
     if (!this.sessions) return this.renderEmptyState();
 
-    const s = this.sessions;
-
     return html`
       <div class="chart-row">
         <div class="section">
@@ -580,8 +581,6 @@ export class ScionPageMetrics extends LitElement {
     if (this.loading) return html`<sl-spinner></sl-spinner>`;
     if (!this.modelCalls) return this.renderEmptyState();
 
-    const mc = this.modelCalls;
-
     return html`
       <div class="chart-row">
         <div class="section">
@@ -603,8 +602,6 @@ export class ScionPageMetrics extends LitElement {
   private renderTokensTab() {
     if (this.loading) return html`<sl-spinner></sl-spinner>`;
     if (!this.tokens) return this.renderEmptyState();
-
-    const t = this.tokens;
 
     return html`
       <div class="chart-row">
