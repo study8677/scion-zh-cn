@@ -381,7 +381,15 @@ async function renderRoute(path: string): Promise<void> {
     activeShell = null;
     const page = document.createElement(tag);
     appContainer.appendChild(page);
-    setDocumentTitle(tag === 'scion-login-page' ? 'Login' : tag === 'scion-page-invite' ? 'Invite' : 'Page Not Found');
+    setDocumentTitle(
+      tag === 'scion-login-page'
+        ? 'Login'
+        : tag === 'scion-page-invite'
+          ? 'Invite'
+          : tag === 'scion-page-onboarding'
+            ? 'Setup'
+            : 'Page Not Found'
+    );
   } else if (activeShell) {
     // Reuse existing shell — just update properties and swap page content
     const shell = activeShell.element as HTMLElement & {
